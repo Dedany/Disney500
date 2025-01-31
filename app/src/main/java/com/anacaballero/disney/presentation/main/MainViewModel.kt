@@ -10,9 +10,11 @@ import com.anacaballero.disney.R
 import com.anacaballero.disney.domain.useCases.characters.CharactersUseCase
 import com.anacaballero.disney.domain.useCases.characters.CharactersUseCaseImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Timer
 
 import java.util.TimerTask
@@ -31,24 +33,29 @@ class MainViewModel @Inject constructor(
 
     private var timer: Timer? = null
     private var job: Job? = null
-    
+
     private var isSearchingByLimit: Boolean = false
+
+    private var page: Int = 0
+    private var totalPages: Int = 0
 
     fun onSearchTypeCheckedChange(isChecked: Boolean) {
         isSearchingByLimit = isChecked
 
     }
 
-    fun loadCharacters() {
+    fun loadCharacters() {  //pide personajes
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                val newCharacters: List<Character> = useCase.getCharacters()
+               val pair = useCase.getCharactersAndTotalPages()
 
-                _characters.value = newCharacters
+                _characters.value = pair.first
+                totalPages= pair.second
                 _isLoading.value = false
             } catch (e: Exception) {
                 Log.e("ERROR", e.stackTraceToString())
+                _characters.value= listOf()
             }
         }
     }
@@ -71,7 +78,7 @@ class MainViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             try {
-                val newCharacters =  useCase.getCharactersByName(name)
+                val newCharacters = useCase.getCharactersByName(name)
 
                 _characters.value = newCharacters
                 _isLoading.value = false
@@ -96,5 +103,23 @@ class MainViewModel @Inject constructor(
                 }
             }, 1500L
         )
+    }
+
+    fun loadMore() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                page += 1
+
+                if (page <= totalPages) {
+                    val items = useCase.getCharactersByPage(page)
+                    val newList = _characters.value!!.toMutableList()
+                    newList?.addAll(items)
+
+                    _characters.value = newList?.toList() ?: listOf()
+                }
+
+            }
+        }
+
     }
 }

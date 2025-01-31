@@ -18,6 +18,10 @@ class AmiiboRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getCharactersAndTotalPages(): Pair<List<Character>, Int> {
+        return Pair(listOf(),0)
+    }
+
     override suspend fun getCharactersByName(name: String): List<Character> {
         val amiibos = dataSource.getCharactersByName(name)
         return amiibos.mapNotNull { amiiboDto ->
@@ -31,6 +35,10 @@ class AmiiboRepositoryImpl @Inject constructor(
         return amiibos.mapNotNull { amiiboDto ->
             amiiboDto.toDomain()
         }
+    }
+
+    override suspend fun getCharactersByPage(page: Int): List<Character> {
+       return listOf()
     }
 
     private fun AmiiboDto.toDomain(): Character? {

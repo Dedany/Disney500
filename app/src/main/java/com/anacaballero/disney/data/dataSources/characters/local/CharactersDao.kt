@@ -22,4 +22,7 @@ interface CharactersDao {
     @Query("DELETE FROM characters WHERE id = :id")
     fun deleteCharacter(id: Int)
 
+    @Query("DELETE FROM characters WHERE page = :page")
+    fun getCharactersByPage(page:Int): List<CharacterDbo>
+
 }

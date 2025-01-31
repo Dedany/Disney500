@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.anacaballero.disney.R
 import com.anacaballero.disney.data.dataSources.amiibo.remote.AmiiboRemoteDataSource
@@ -23,6 +25,7 @@ import com.anacaballero.disney.domain.useCases.characters.CharactersUseCase
 import com.anacaballero.disney.domain.useCases.characters.CharactersUseCaseImpl
 import com.anacaballero.disney.presentation.main.adapter.CharactersListAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -58,11 +61,20 @@ class MainActivity : AppCompatActivity() {
                 super.onScrolled(recyclerView, dx, dy)
 
 
-                val layoutManager = recyclerView.layoutManager
-                val visibleIntemCount =layoutManager?.childCount
-                val totalItemCount = layoutManager?.itemCount
-                val firstItemPositon = layoutManager.firstVisibleItemPosition
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val visibleIntemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstItemPositon = layoutManager.findFirstVisibleItemPosition()
+
+                val visibleItems = visibleIntemCount + firstItemPositon
+
+                val positionToLoadMore = totalItemCount - 5
+
+                if (firstItemPositon >= 0 && visibleItems >= positionToLoadMore) {
+                    loadMoreItems()
+                }
             }
+
         })
         binding?.switchSearchType?.setOnCheckedChangeListener { _, isChecked ->
             viewModel.onSearchTypeCheckedChange(isChecked)
@@ -74,6 +86,12 @@ class MainActivity : AppCompatActivity() {
             } else {
                 InputType.TYPE_CLASS_TEXT
             }
+        }
+    }
+
+    private fun loadMoreItems() {
+        lifecycleScope.launch {
+            viewModel.loadMore()
         }
     }
 

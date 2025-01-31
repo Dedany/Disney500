@@ -33,6 +33,16 @@ class CharactersUseCaseImpl @Inject constructor(
         }
         return characters
     }
+
+    override suspend fun getCharactersByPage(page: Int): List<Character> {
+        val characters = repository.getCharactersByPage(page)
+        return characters
+    }
+
+    override suspend fun getCharactersAndTotalPages(): Pair<List<Character>, Int> {
+        val pair = repository.getCharactersAndTotalPages()
+        return pair
+    }
 }
 
 
