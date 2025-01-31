@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.anacaballero.disney.data.dataSources.characters.local.CharactersDao
 import com.anacaballero.disney.data.dataSources.characters.local.dbo.CharacterDbo
 
-@Database(entities = [CharacterDbo::class] , version = 1) // 2. Anotación de @Database pasando entities en vacio y version en 1
+@Database(entities = [CharacterDbo::class] , version = 2) // 2. Anotación de @Database pasando entities en vacio y version en 1
 abstract class RoomDb: RoomDatabase() { // 1. La clase creada debe ser "abstract"
 
     abstract fun charactersDao(): CharactersDao

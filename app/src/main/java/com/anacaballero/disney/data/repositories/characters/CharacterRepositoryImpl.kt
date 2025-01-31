@@ -36,7 +36,7 @@ class CharacterRepositoryImpl @Inject constructor(
 
             val charactersAmount = 10
             val totalPages =
-                ceil((charactersDbo.size / charactersAmount).toFloat())  //redondea para arriba
+                ceil((charactersDbo.size / charactersAmount).toFloat()).toInt()  //redondea para arriba
 
             for (character in charactersDbo.indices step charactersAmount) {
                 val characters = charactersDbo.slice(
@@ -68,17 +68,15 @@ class CharacterRepositoryImpl @Inject constructor(
                 charactersDto.toLocal()
             }
 
-            val characters = charactersDto.map { characterDto ->
-                characterDto.toDomain()
-            }
 
-            val charactersAmount = 10
-            val totalPages = ceil((charactersDbo.size / charactersAmount).toFloat())
 
-            for (character in charactersDbo.indices step charactersAmount) {
+            val charactersPerPage = 10
+            val totalPages = ceil((charactersDbo.size / charactersPerPage).toFloat()).toInt()
+
+            for (character in charactersDbo.indices step charactersPerPage) {
                 val characters = charactersDbo.slice(
                     character until minOf(
-                        character + charactersAmount,
+                        character + charactersPerPage,
                         charactersDbo.size
                     )
                 )
@@ -93,7 +91,7 @@ class CharacterRepositoryImpl @Inject constructor(
 
             val charactersDboInFirstPage = localCharactersDataSource.getCharactersByPage(1)
             val charactersFromLocal = charactersDboInFirstPage.map { it.toDomain() }
-            return@withContext Pair(charactersFromLocal, totalPages.toInt())
+            return@withContext Pair(charactersFromLocal, totalPages)
         }
     }
 
